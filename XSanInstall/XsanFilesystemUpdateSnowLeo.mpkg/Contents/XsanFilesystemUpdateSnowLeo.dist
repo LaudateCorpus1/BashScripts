@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<installer-gui-script minSpecVersion='1'>
+
+	<platforms>
+		<client arch="i386"/>
+		<server arch="i386"/>
+	</platforms>
+
+	<title>MANUAL_TITLE</title>
+	<welcome file="Welcome.rtf"/>
+	<license file="License.rtf" sla='EA0398'/>
+	
+	<background file="background.tif"
+				scaling="proportional"
+				alignment="bottomleft"
+	/>
+	
+	<options	customize			= "never"
+				rootVolumeOnly		= "true"
+				hostArchitectures 	= "i386"
+	/>
+
+	<!-- Manual Install package layout -->
+	<choices-outline>
+		<line choice='manual'/>
+		<line choice='XsanAdminSupport-manual'/>
+	</choices-outline>
+	
+	<choice id='manual'	title='MANUAL_TITLE' versStr='SU_VERS'/>
+
+	<choice id='manual'>
+		<pkg-ref auth='Root' id='asl' active="isSnowLeopard()">file:./Contents/Packages/XsanFilesystemSnowLeo.pkg</pkg-ref>
+	</choice>
+	
+	<choice id='XsanAdminSupport-manual' visible='false' selected='!isServer()'>
+		<pkg-ref auth='Root' id='bsl' active="isSnowLeopard()">file:./Contents/Packages/XsanAdminSupportSnowLeo.pkg</pkg-ref>
+	</choice>
+	
+	<!-- Software Update package layout -->
+	<choices-outline ui='SoftwareUpdate'>
+		<line choice='su'/>
+	</choices-outline>
+
+	<choice id='su' start_selected = 'true'
+					title='SU_TITLE' 
+					versStr='SU_VERS'
+					description='SU_DESCRIPTION' 
+					description-mime-type='text/html'
+					suDisabledGroupID = 'XsanFileSystem'
+					visible='volumeNeedsUpdate()'>
+	</choice>
+	
+	<!-- Invisible update package layout -->
+	<choices-outline ui='invisible'>
+		<line choice='XsanFileSystem-auto'/>
+		<line choice='XsanAdminSupport-auto'/>
+	</choices-outline>
+
+	<choice id='XsanFileSystem-auto' suDisabledGroupID='XsanFileSystem-auto' visible='false' selected='areWeInstallingSUChoice()'>
+		<pkg-ref auth='Root' id='com.apple.pkg.XsanFilesystemSnowLeo' active="isSnowLeopard()">XsanFilesystemSnowLeo.pkg</pkg-ref>
+	</choice>
+	
+	<choice id='XsanAdminSupport-auto' suDisabledGroupID='XsanAdminSupport-auto' visible='false' selected='areWeInstallingSUChoice() &amp;&amp; !isServer()'>
+		<pkg-ref auth='Root' id='com.apple.pkg.XsanAdminSupportSnowLeo' active="isSnowLeopard()">XsanAdminSupportSnowLeo.pkg</pkg-ref>
+	</choice>
+
+	<installation-check script="InstallationCheck()" />	
+
+
+<!-- Installer logic -->
+<script>
+	function areWeInstallingSUChoice()
+	{
+		// note that if the SoftwareUpdate choices-outline is not being run, the entity choices.su will not exist, so check that first.
+		return (typeof choices.su!="undefined" &amp;&amp; choices.su.visible);
+	}
+
+	function InstallationCheck()
+	{
+		return(rootVolumeHasNoTier3() &amp;&amp; rootVolumeHasLeopard() &amp;&amp; rootVolumeHasEligible());
+	}
+
+	function isServer()
+	{
+		return(system.files.fileExistsAtPath("/System/Library/CoreServices/ServerVersion.plist"));
+	}
+
+	function rootVolumeHasNoTier3()
+	{
+		var path = "/var/db/.AppleTier3Language";
+		if (!system.files.fileExistsAtPath(path))
+			return true;
+			
+		my.result.message = system.localizedStringWithFormat('VOLUMEHASTIER3');
+		my.result.type = 'Fatal';
+		return false;
+	}
+	
+	function rootVolumeHasLeopard()
+	{
+		if ( system.compareVersions(system.version.ProductVersion, "10.6.0") &lt; 0) {
+			my.result.message = system.localizedStringWithFormat('REQUIRESSNOWLEO');
+			my.result.type = 'Fatal';
+			return false;
+		}
+		
+		if ( system.compareVersions(system.version.ProductVersion, "10.7.0") &gt;= 0) {
+			my.result.message = system.localizedStringWithFormat('UNSUPPORTEDOS');
+			my.result.type = 'Fatal';
+			return false;
+		}
+
+		return true;
+	}
+
+	function isLeopard()
+	{
+		if( (system.compareVersions(my.target.systemVersion.ProductVersion, '10.5') &gt;= 0) &amp;&amp; (system.compareVersions(my.target.systemVersion.ProductVersion, '10.6') &lt; 0) ){ return true; }
+		
+		return false;
+	}
+
+	function isSnowLeopard()
+	{
+		if( (system.compareVersions(my.target.systemVersion.ProductVersion, '10.6') &gt;= 0) &amp;&amp; (system.compareVersions(my.target.systemVersion.ProductVersion, '10.7') &lt; 0) ){ return true; }
+		
+		return false;
+	}
+
+	function rootVolumeHasEligible()
+	{
+		var XsanVersion = system.files.plistAtPath("/System/Library/CoreServices/XsanVersion.plist");
+		
+		if( XsanVersion )
+		{
+			var pvers = XsanVersion.ProductVersion;
+			if( pvers )
+			{
+				if( system.compareVersions(pvers, "2.2") == 0 )
+				{
+					var vers = XsanVersion.ProductBuildVersion;
+					if( vers )
+					{
+						if( system.compareVersions(vers, "10M220") == 0 )
+						{
+							return true;	
+						}
+					}
+				}
+				
+				if( system.compareVersions(pvers, "2.2.1") == 0 )
+				{
+					return true;	
+				}
+			}
+		}
+
+		my.result.message = system.localizedStringWithFormat('NOAPP');
+		my.result.type = 'Fatal';
+		return false;
+	}
+
+	function volumeNeedsUpdate()
+	{
+		var XsanVersion = system.files.plistAtPath(my.target.mountpoint +"/System/Library/CoreServices/XsanVersion.plist");
+		
+		if( XsanVersion )
+		{
+			var pvers = XsanVersion.ProductVersion;
+			if( pvers )
+			{
+				if( system.compareVersions(pvers, "2.2") == 0 )
+				{
+					var vers = XsanVersion.ProductBuildVersion;
+					if( vers )
+					{
+						if( system.compareVersions(vers, "10M220") == 0 )
+						{
+							return true;	
+						}
+					}
+				}
+				
+				if( system.compareVersions(pvers, "2.2.1") == 0 )
+				{
+					var vers = XsanVersion.ProductBuildVersion;
+					if( vers )
+					{
+						if( system.compareVersions(vers, "10M1") &lt; 0 )
+						{
+							return true;	
+						}
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	function GetBundleFiveTupleVersion( bundle )
+	{
+		if( bundle == null ){ return null; }
+		
+		var shortVers = bundle.CFBundleVersion;
+		shortVers = PadVersion(shortVers, 3);
+		var sourceVers = bundle.SourceVersion;
+		sourceVers = PadVersion(sourceVers, 1);
+		var buildVers = bundle.BuildVersion;
+		buildVers = PadVersion(buildVers, 1);
+		var fiveTupleVers = shortVers + "." + sourceVers + "." + buildVers;
+		
+		return fiveTupleVers;
+	}
+
+	function PadVersion( version, tupleCount )
+	{
+		if( version == null ){ version = "0"; }
+		
+		var components = version.split(".");
+		
+		if( components.length &gt; tupleCount )
+		{
+			components = components.slice(0, tupleCount);
+		}
+		else
+		{
+			for( ; components.length&lt;tupleCount; ){ components.push("0"); }
+		}
+		
+		return components.join(".");
+	}
+</script>
+
+<!-- Common include -->
+<script>
+	function _PadVersionString(version, tupleCount)
+	{
+		if (version == null)
+			version = "0";
+		var components = version.split(".");
+		if (components.length &gt; tupleCount)
+			components = components.slice(0, tupleCount);
+		else
+			for (; components.length&lt;tupleCount; )
+				components.push("0");
+		return components.join(".");
+	}
+
+	function BundleGetCompositeVersion5(bundle)
+	{
+		if (bundle == null)
+			return null;
+		var shortVers = bundle.CFBundleShortVersionString;
+		shortVers = _PadVersionString(shortVers, 3);
+		var sourceVers = bundle.SourceVersion;
+		sourceVers = _PadVersionString(sourceVers, 1);
+		var buildVers = bundle.BuildVersion;
+		buildVers = _PadVersionString(buildVers, 1);
+		var fiveTupleVers = shortVers + "." + sourceVers + "." + buildVers;
+		return fiveTupleVers;
+	}
+
+	function CheckNameRegistry(path, property, value)
+	{
+		try
+		{
+			var obj = system.ioregistry.fromPath(path);
+			if (obj == null)
+				return false;
+
+			var propObj = obj[property];
+			if (propObj == null)
+				return false;
+
+			if (typeof(propObj) == "string")	// string
+			{
+				return (propObj == value);
+			}
+			else if (typeof(propObj) == "object")	// array contains
+			{
+				for (var i=0; i&lt;propObj.length; i++)
+					if (propObj[i] == value)
+						return true;
+			}
+		}
+		catch (e) {}
+
+		return false;
+	}
+	</script>	
+
+
+	<pkg-ref id='asl' installKBytes='57244' version='2.2.1.2590000.1788'/>
+	<pkg-ref id='bsl' installKBytes='3120' version='2.2.1.2590000.1788'/>
+	<pkg-ref id='com.apple.pkg.XsanAdminSupportSnowLeo' installKBytes='3120' version='2.2.1.2590000.1788'/>
+	<pkg-ref id='com.apple.pkg.XsanFilesystemSnowLeo' installKBytes='57244' version='2.2.1.2590000.1788'/>
+
+	<pkg-ref id='asl' installKBytes='57244' version='2.2.1.2590000.1788'/>
+	<pkg-ref id='bsl' installKBytes='3120' version='2.2.1.2590000.1788'/>
+	<pkg-ref id='com.apple.pkg.XsanAdminSupportSnowLeo' installKBytes='3120' version='2.2.1.2590000.1788'/>
+	<pkg-ref id='com.apple.pkg.XsanFilesystemSnowLeo' installKBytes='57244' version='2.2.1.2590000.1788'/>
+</installer-gui-script>

@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+
+`chmod 0755 "$ARGV[2]/Library/Filesystems"`;
+`chown root:wheel "$ARGV[2]/Library/Filesystems"`;
+
+`chmod 0755 "$ARGV[2]/System/Library/Filesystems"`;
+`chown root:wheel "$ARGV[2]/System/Library/Filesystems"`;
+		
+exit(0);

@@ -1,0 +1,6 @@
+/usr/share/servermgrd/bundles/servermgr_nomadfss.bundle
+/usr/share/servermgrd/bundles/servermgr_nomadvol.bundle
+/usr/share/servermgrd/html/servermgr_nomadfss.html
+/usr/share/servermgrd/html/servermgr_nomadvol.html
+/usr/share/servermgrd/cgi-bin/servermgr_nomadfss
+/usr/share/servermgrd/cgi-bin/servermgr_nomadvol

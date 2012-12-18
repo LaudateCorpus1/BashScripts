@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+
+`rm -Rf "$ARGV[2]"/private/etc/mach_init.d/SNServer.plist`;
+`rm -Rf "$ARGV[2]"/System/Library/LaunchDaemons/com.apple.SNServer.plist`;
+
+exit 0;

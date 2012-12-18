@@ -1,0 +1,19 @@
+#!/bin/sh -
+
+#
+# This script shuts down Xsan on the local system in preparation for
+# upgrading an existing version of Xsan.
+#
+
+launchctl="/usr/libexec/StartupItemContext /bin/launchctl"
+
+#
+# In this case, all we need to do is stop Xsan itself.
+#
+if [ -f /System/Library/LaunchDaemons/com.apple.xsan.plist ]; then
+	${launchctl} unload /System/Library/LaunchDaemons/com.apple.xsan.plist
+	sleep 5
+elif [ -x /System/Library/StartupItems/acfs/acfs ]; then
+	/usr/libexec/StartupItemContext /System/Library/StartupItems/acfs/acfs stop
+	rm -Rf /System/Library/StartupItems/acfs
+fi

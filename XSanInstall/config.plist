@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>computers</key>
+        <array/>
+        <key>metadataNetwork</key>
+        <string>MDNET</string>
+        <key>ownerEmail</key>
+        <string></string>
+        <key>ownerName</key>
+        <string></string>
+        <key>role</key>
+        <string>CLIENT</string>
+        <key>sanName</key>
+        <string>SANNAME</string>
+        <key>serialNumbers</key>
+        <array>
+                <dict>
+                       <key>license</key>
+                       <string>InsertSerial</string>
+                       <key>organization</key>
+                       <string>Art Lab</string>
+                       <key>registeredTo</key>
+                       <string>IT</string>
+                </dict>
+        </array>
+</dict>
+</plist>

@@ -1,0 +1,8 @@
+[0:0:0:0]    cd/dvd  HP       DV-28S-Y         C.4G  /dev/sr0
+[2:0:0:0]    disk    LSI      INF-01-00        0780  /dev/sda
+[2:0:0:1]    disk    LSI      INF-01-00        0780  /dev/sdb
+[2:0:0:2]    disk    LSI      INF-01-00        0780  /dev/sde
+[2:0:0:3]    disk    LSI      INF-01-00        0780  /dev/sdf
+[2:0:0:4]    disk    LSI      INF-01-00        0780  /dev/sdi
+[2:0:0:5]    disk    LSI      INF-01-00        0780  /dev/sdj
+[2:0:0:6]    disk    LSI      INF-01-00        0780  /dev/sdm

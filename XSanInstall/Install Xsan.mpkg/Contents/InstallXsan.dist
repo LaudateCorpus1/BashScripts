@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<installer-gui-script minSpecVersion='1'>
+    <!-- Installer UI-ey stuff -->
+    <title>Xsan_TITLE</title>
+    <welcome file="Welcome.rtfd"/>
+    <readme file="Readme.rtf"/>
+    <license file="License.rtf" sla="EA0398"/>
+    <background file="background.tif" scaling="tofit" alignment="bottomleft"/>
+    <options rootVolumeOnly='true'/>
+    <options hostArchitectures='i386'/>
+    <options customize='always'/>
+    <!-- Manual Install package layout -->
+    <choices-outline>
+        <line choice='Xsan2Leopard'/>
+        <line choice='Xsan2SnowLeopard'/>
+        <line choice='XsanAdmin'>
+            <line choice='XsanAdminLeopard'/>
+            <line choice='XsanAdminSnowLeopard'/>
+        </line>
+        <line choice='Xsan1'>
+            <line choice='Xsan1Leopard'/>
+            <line choice='Xsan1SnowLeopard'/>
+        </line>
+    </choices-outline>
+    <!-- core package -->
+    <!-- invisible choice, installed on desktops only -->
+    <choice id='Xsan2Leopard' visible='false' selected="!isServer() &amp;&amp; isLeopard()">
+        <pkg-ref auth='Root' id='com.apple.pkg.XsanAdminSupportLeopard' installKBytes="1304" version="2.2.0.2500000.1767">file:./Contents/Packages/XsanAdminSupportLeopard.pkg</pkg-ref>
+    </choice>
+    <choice id='Xsan2SnowLeopard' visible='false' selected="!isServer() &amp;&amp; isSnowLeopard()">
+        <pkg-ref auth='Root' id='com.apple.pkg.XsanAdminSupportSnowLeo' installKBytes="2755" version="2.2.0.2500000.1779">file:./Contents/Packages/XsanAdminSupportSnowLeo.pkg</pkg-ref>
+    </choice>
+    <choice id='XsanAdmin' title='XsanAdmin_TITLE' versStr='XsanAdmin_VERS' description='XsanAdmin_DESC' start_selected='true'></choice>
+    <choice id='XsanAdminLeopard' visible='false' selected="choices.XsanAdmin.selected &amp;&amp; isLeopard()">
+        <pkg-ref auth='Root' id='com.apple.pkg.XsanAdminAppLeopard' installKBytes="45291" version="2.2.0.2500000.1767">file:./Contents/Packages/XsanAdminAppLeopard.pkg</pkg-ref>
+    </choice>
+    <choice id='XsanAdminSnowLeopard' visible='false' selected="choices.XsanAdmin.selected &amp;&amp; isSnowLeopard()">
+        <pkg-ref auth='Root' id='com.apple.pkg.XsanAdminAppSnowLeo' installKBytes="46593" version="2.2.0.2500000.1779">file:./Contents/Packages/XsanAdminAppSnowLeo.pkg</pkg-ref>
+    </choice>
+    <choice id='Xsan1' title='Xsan_TITLE' versStr='Xsan_VERS' description='Xsan_DESC' enabled='false' selected='true'></choice>
+    <choice id='Xsan1Leopard' visible='false' selected="choices.Xsan1.selected &amp;&amp; isLeopard()">
+        <pkg-ref auth='Root' id='com.apple.pkg.XsanFilesystemLeopard' installKBytes="45430" version="2.2.0.2500000.1767">file:./Contents/Packages/XsanFilesystemLeopard.pkg</pkg-ref>
+    </choice>
+    <choice id='Xsan1SnowLeopard' visible='false' selected="choices.Xsan1.selected &amp;&amp; isSnowLeopard()">
+        <pkg-ref auth='Root' id='com.apple.pkg.XsanFilesystemSnowLeo' installKBytes="56328" version="2.2.0.2500000.1779">file:./Contents/Packages/XsanFilesystemSnowLeo.pkg</pkg-ref>
+    </choice>
+    <!-- Installer logic -->
+    <installation-check script="InstallationCheck()"/>
+    <volume-check script="VolumeCheck()"/>
+    <script>
+	
+	function InstallationCheck()
+	{
+        if (system.sysctl('hw.vectorunit') == '1') {
+            return true;
+		}
+		
+        my.result.message = system.localizedStringWithFormat('FORBIDDENCPU');
+        my.result.type = 'Fatal';
+        return false;
+	}
+	
+	function VolumeCheck()
+	{
+		return(volumeHasNoTier3() &amp;&amp; volumeHasLeopard() &amp;&amp; shouldUpgrade());
+	}
+
+	function isServer()
+	{
+		return(system.files.fileExistsAtPath("/System/Library/CoreServices/ServerVersion.plist"));
+	}
+
+	function isTiger()
+	{
+		if( (system.compareVersions(my.target.systemVersion.ProductVersion, '10.4') >= 0) &amp;&amp; (system.compareVersions(my.target.systemVersion.ProductVersion, '10.5') &lt; 0) ){ return true; }
+		
+		return false;
+	}
+
+	function isLeopard()
+	{
+		if( (system.compareVersions(my.target.systemVersion.ProductVersion, '10.5') >= 0) &amp;&amp; (system.compareVersions(my.target.systemVersion.ProductVersion, '10.6') &lt; 0) ){ return true; }
+		
+		return false;
+	}
+
+	function isSnowLeopard()
+	{
+		if( (system.compareVersions(my.target.systemVersion.ProductVersion, '10.6') >= 0) &amp;&amp; (system.compareVersions(my.target.systemVersion.ProductVersion, '10.7') &lt; 0) ){ return true; }
+		
+		return false;
+	}
+
+	function shouldUpgrade()
+	{
+		var XsanVersion = system.files.plistAtPath(my.target.mountpoint + "/System/Library/CoreServices/XsanVersion.plist");
+		
+		if( XsanVersion )
+		{
+			var vers = XsanVersion.ProductVersion;
+			if( vers )
+			{
+				if( system.compareVersions(vers, "2.0.0.0.0") &lt; 0 ) 
+				{
+					my.result.message = system.localizedStringWithFormat('NEEDSVERSION');
+					my.result.type = 'Fatal';
+					return false;				
+				}
+				
+				if( system.compareVersions(vers, "2.2.1.0.0") >= 0 )
+				{
+					my.result.message = system.localizedStringWithFormat('HASNEWER');
+					my.result.type = 'Fatal';
+					return false;	
+				}
+			}
+		}
+		else
+		{
+			var appBundle = system.files.bundleAtPath(my.target.mountpoint + "/System/Library/Extensions/acfs.kext");
+			if( appBundle )
+			{
+				var appVersion = GetBundleFiveTupleVersion(appBundle);
+				
+				if( appVersion )
+				{
+					if( system.compareVersions(appVersion, "339.0.0.0.0") &lt; 0 )
+					{
+						my.result.message = system.localizedStringWithFormat('NEEDSVERSION');
+						my.result.type = 'Fatal';
+						return false;
+					}
+					
+					if( system.compareVersions(appVersion, "389.0.0.0.0") >= 0 )
+					{
+						my.result.message = system.localizedStringWithFormat('HASNEWER');
+						my.result.type = 'Fatal';
+						return false;					
+					}
+				}
+			}
+		}
+			
+		return true;
+	}
+
+	function volumeHasNoTier3()
+	{
+		var path = my.target.mountpoint + "/var/db/.AppleTier3Language";
+		if (!system.files.fileExistsAtPath(path))
+			return true;
+			
+		my.result.message = system.localizedStringWithFormat('VOLUMEHASTIER3');
+		my.result.type = 'Fatal';
+		return false;
+	}
+	
+	function volumeHasLeopard()
+	{
+		if ( system.compareVersions(system.version.ProductVersion, "10.5") &lt; 0) {
+			my.result.message = system.localizedStringWithFormat('REQUIRES105');
+			my.result.type = 'Fatal';
+			return false;
+		}
+		
+		if ( system.compareVersions(system.version.ProductVersion, "10.7.0") >= 0) {
+			my.result.message = system.localizedStringWithFormat('UNSUPPORTEDOS');
+			my.result.type = 'Fatal';
+			return false;
+		}
+		
+		return true;
+	}
+
+	function GetBundleFiveTupleVersion( bundle )
+	{
+		if( bundle == null ){ return null; }
+		
+		var shortVers = bundle.CFBundleVersion;
+		shortVers = PadVersion(shortVers, 3);
+		var sourceVers = bundle.SourceVersion;
+		sourceVers = PadVersion(sourceVers, 1);
+		var buildVers = bundle.BuildVersion;
+		buildVers = PadVersion(buildVers, 1);
+		var fiveTupleVers = shortVers + "." + sourceVers + "." + buildVers;
+		
+		return fiveTupleVers;
+	}
+
+	function PadVersion( version, tupleCount )
+	{
+		if( version == null ){ version = "0"; }
+		
+		var components = version.split(".");
+		
+		if( components.length > tupleCount )
+		{
+			components = components.slice(0, tupleCount);
+		}
+		else
+		{
+			for( ; components.length&lt;tupleCount; ){ components.push("0"); }
+		}
+		
+		return components.join(".");
+	}
+
+	</script>
+    <pkg-ref id='com.apple.pkg.XsanAdminSupportLeopard' installKBytes='1632' version='2.2.0.2500000.1767'/>
+    <pkg-ref id='com.apple.pkg.XsanFilesystemLeopard' installKBytes='46280' version='2.2.0.2500000.1767'/>
+    <pkg-ref id='com.apple.pkg.XsanAdminSupportLeopard' installKBytes='1632' version='2.2.0.2500000.1767'/>
+    <pkg-ref id='com.apple.pkg.XsanFilesystemLeopard' installKBytes='46280' version='2.2.0.2500000.1767'/>
+</installer-gui-script>

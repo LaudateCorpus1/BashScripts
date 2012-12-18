@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>./Applications/Server/Xsan User Quotas.app/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>9</string>
+		<key>CFBundleShortVersionString</key>
+		<string>2.2</string>
+		<key>CFBundleVersion</key>
+		<string>16</string>
+		<key>ProjectName</key>
+		<string>XsanUserQuotas</string>
+		<key>SourceVersion</key>
+		<string>160000</string>
+	</dict>
+	<key>./Library/Documentation/Xsan/Xsan 2 Admin Guide.app/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>1</string>
+		<key>CFBundleShortVersionString</key>
+		<string>6.24</string>
+		<key>CFBundleVersion</key>
+		<string>6.24</string>
+		<key>ProjectName</key>
+		<string>XsanCD</string>
+		<key>SourceVersion</key>
+		<string>62400</string>
+	</dict>
+	<key>./Library/Documentation/Xsan/Xsan 2 Setup Guide.app/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>1</string>
+		<key>CFBundleShortVersionString</key>
+		<string>6.24</string>
+		<key>CFBundleVersion</key>
+		<string>6.24</string>
+		<key>ProjectName</key>
+		<string>XsanCD</string>
+		<key>SourceVersion</key>
+		<string>62400</string>
+	</dict>
+	<key>./System/Library/Extensions/acfs.kext/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>1</string>
+		<key>CFBundleShortVersionString</key>
+		<string>412</string>
+		<key>CFBundleVersion</key>
+		<string>412</string>
+		<key>ProjectName</key>
+		<string>XsanFS</string>
+		<key>SourceVersion</key>
+		<string>4120000</string>
+	</dict>
+	<key>./System/Library/Extensions/acfsctl.kext/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>1</string>
+		<key>CFBundleShortVersionString</key>
+		<string>412</string>
+		<key>CFBundleVersion</key>
+		<string>412</string>
+		<key>ProjectName</key>
+		<string>XsanFS</string>
+		<key>SourceVersion</key>
+		<string>4120000</string>
+	</dict>
+	<key>./System/Library/Filesystems/acfs.fs/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>1</string>
+		<key>CFBundleShortVersionString</key>
+		<string>412</string>
+		<key>CFBundleVersion</key>
+		<string>412</string>
+		<key>ProjectName</key>
+		<string>XsanFS</string>
+		<key>SourceVersion</key>
+		<string>4120000</string>
+	</dict>
+	<key>./usr/share/servermgrd/bundles/servermgr_xsan.bundle/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>2</string>
+		<key>CFBundleShortVersionString</key>
+		<string>1.2</string>
+		<key>CFBundleVersion</key>
+		<string>94</string>
+		<key>ProjectName</key>
+		<string>servermgr_xsan</string>
+		<key>SourceVersion</key>
+		<string>940000</string>
+	</dict>
+</dict>
+</plist>

@@ -1,0 +1,85 @@
+#! /bin/sh
+
+# Set up argument values
+ROOT_CERT=/private/etc/servermgrd/ssl.crt/server.crt
+ROOT_KEY=/private/etc/servermgrd/ssl.key/server.key
+
+# Set up certificate expiration time
+DAYS=365
+
+# Identify ourselves as servermgrd for the cert OU
+OU=servermgrd
+
+# The old cert used www.example.com, we are doing that too
+CN=www.example.com
+
+# We want an x509 cert instead of a cert request
+REQ_TYPE="x509"
+
+# Use sha1 hash (because of x509)
+HASH="sha1"
+
+# Determine if the certificate needs to be updated
+function check_cert() {
+	CERT_MD5=02e63b25b48072d1903872445e25231d
+	KEY_MD5=f7098ca38a3259b704b159eba6bdec22
+
+	# If we are on client we won't have a certificate.  Check that we have both
+	if [ -e $ROOT_CERT ] && [ -e $ROOT_KEY ]
+	    then
+
+	    FOUND_CERT_MD5=`md5 -q $ROOT_CERT`
+	    FOUND_KEY_MD5=`md5 -q $ROOT_KEY`
+
+	    if [ "$FOUND_CERT_MD5" = "$CERT_MD5" ] || [ "$FOUND_KEY_MD5" = "$KEY_MD5" ]
+		then
+                echo "The certification needs updating"
+	    else
+                echo "The certification has been updated and should not be altered"
+                exit
+	    fi
+	else
+
+	    # If we could not find a cert, silently exit
+	    exit
+	fi
+}
+
+# Create the self signed certificate
+function create_cert() {
+	# Set up argument string
+	SUBJ="-subj /OU=$OU/CN=$CN"
+	OUT_PATHS="-keyout $ROOT_KEY -out $ROOT_CERT"
+	VERBOSE=
+	BASE_ARGS="req -batch -new -$REQ_TYPE -$HASH -days $DAYS -nodes"
+
+	# Back up old certificate
+	cp $ROOT_KEY $ROOT_KEY.old
+	cp $ROOT_CERT $ROOT_CERT.old
+
+	# Create string
+	SSL_CMD="/usr/bin/openssl $BASE_ARGS $VERBOSE $OUT_PATHS $SUBJ"
+
+	# Generate new self signed x509 cert
+	echo "Calling $SSL_CMD"
+	if $SSL_CMD
+	then
+	       	# Secure the private key
+	        chmod 400 $ROOT_KEY
+
+	        # Make the cert public
+	        chmod 644 $ROOT_CERT
+
+		echo "Created new certificate $ROOT_CERT and private key $ROOT_KEY"
+	else
+	        echo "Error: Could not create new certificate"
+	fi
+}
+
+# First determine if we have the preinstalled certificate
+# We do not want to overwrite a customer installed certificate
+check_cert
+
+# If the check passes and we have not exited, create the certificate
+create_cert
+

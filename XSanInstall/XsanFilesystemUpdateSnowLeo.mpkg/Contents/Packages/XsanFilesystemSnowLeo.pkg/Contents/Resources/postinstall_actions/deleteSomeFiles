@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+
+# ARGV[0] = Path to package being installed 
+# ARGV[1] = Destination path of where package is being installed
+# ARGV[2] = Mountpoint of the destination volume
+# ARGV[3] = Path to the directory containing the System folder that contains the active Installation framework. 
+
+system( $ARGV[0] . "/Contents/Resources/deleteomatic", 
+		$ARGV[2], 
+		$ARGV[0] . "/Contents/Resources/cleanup" );
+
+exit(0);
+

@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+
+`touch "$ARGV[2]"/usr/share/sandbox/serialnumberd.sb`;
+
+exit 0;

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>./Applications/Server/Xsan Admin.app/Contents/Resources/XsanAdminLauncher.app/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>1</string>
+		<key>CFBundleShortVersionString</key>
+		<string>2.2</string>
+		<key>CFBundleVersion</key>
+		<string>2.2</string>
+		<key>ProjectName</key>
+		<string>XsanAdmin</string>
+		<key>SourceVersion</key>
+		<string>2470000</string>
+	</dict>
+	<key>./Applications/Server/Xsan Admin.app/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>1</string>
+		<key>CFBundleShortVersionString</key>
+		<string>2.2</string>
+		<key>CFBundleVersion</key>
+		<string>247</string>
+		<key>ProjectName</key>
+		<string>XsanAdmin</string>
+		<key>SourceVersion</key>
+		<string>2470000</string>
+	</dict>
+	<key>./Library/Documentation/Xsan/Xsan 2 Admin Guide.app/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>4</string>
+		<key>CFBundleShortVersionString</key>
+		<string>5.24</string>
+		<key>CFBundleVersion</key>
+		<string>5.24</string>
+		<key>ProjectName</key>
+		<string>XsanCD</string>
+		<key>SourceVersion</key>
+		<string>52400</string>
+	</dict>
+	<key>./Library/Documentation/Xsan/Xsan 2 Setup Guide.app/Contents/version.plist</key>
+	<dict>
+		<key>BuildVersion</key>
+		<string>4</string>
+		<key>CFBundleShortVersionString</key>
+		<string>5.24</string>
+		<key>CFBundleVersion</key>
+		<string>5.24</string>
+		<key>ProjectName</key>
+		<string>XsanCD</string>
+		<key>SourceVersion</key>
+		<string>52400</string>
+	</dict>
+</dict>
+</plist>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleGetInfoString</key>
+	<string>XsanFilesystemUpdateSnowLeo 2.2.1</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.apple.mpkg.XsanFilesystemUpdateSnowLeo</string>
+	<key>CFBundleName</key>
+	<string>XsanFilesystemUpdateSnowLeo</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.2.1</string>
+	<key>IFPkgFlagAuthorizationAction</key>
+	<string>RootAuthorization</string>
+	<key>IFPkgFlagComponentDirectory</key>
+	<string>./Contents/Installers/</string>
+	<key>IFPkgFlagFollowLinks</key>
+	<true/>
+	<key>IFPkgFlagIsRequired</key>
+	<false/>
+	<key>IFPkgFlagRootVolumeOnly</key>
+	<false/>
+	<key>IFPkgFormatVersion</key>
+	<real>0.10000000149011612</real>
+	<key>IFPkgHideSubpackages</key>
+	<true/>
+	<key>requiredSLA</key>
+	<string>EA0398</string>
+</dict>
+</plist>

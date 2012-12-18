@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+my $target = $ARGV[2];
+my $arch = `/usr/bin/arch`;
+chomp($arch);
+
+#print("Rebuilding kextcache\n");
+
+system("/usr/bin/touch \"$target/System/Library/Extensions\"");
+system("/bin/rm -rf \"$target/System/Library/Caches/com.apple.kernelcaches\"");
+system("/bin/rm -f \"$target/System/Library/Extensions.kextcache\"");
+system("/usr/sbin/kextcache", "-l", "-a", $arch, "-m",
+	"$target/System/Library/Extensions.mkext", 
+	"$target/System/Library/Extensions"
+	);
+
+#print("Finished rebuilding kextcache\n");
+
+exit(0);

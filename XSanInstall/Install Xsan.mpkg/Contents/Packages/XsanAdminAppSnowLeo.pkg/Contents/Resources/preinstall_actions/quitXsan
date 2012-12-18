@@ -1,0 +1,127 @@
+#!/usr/bin/perl
+
+my $wd = `pwd`;
+chomp($wd);
+
+###################################################################################
+my $ALERT = "$ARGV[0]/Contents/Resources/Alert.app/Contents/MacOS/Alert";
+my $SENDER = "$ARGV[0]/Contents/Resources/SlimSender";
+my $APP = "Xsan Admin";
+my $APP_IS_RUNNING = 0;
+my $APP_RUNNING_CURRENT_USER = 0;
+my $APP_RUNNING_OTHER_USER = 0;
+###################################################################################
+
+my @switchedPIDs = ();
+my @activePIDs = ();
+
+# abort if alert is unavailable
+if (! -e $ALERT)
+{
+	exit(1);
+}
+
+# retrieve Xsan Admin PIDs, if any
+my $PROC = `/usr/bin/killall -dc "$APP" 2> /dev/null`;
+if (($? >> 8) != 0) {
+	exit(0);
+}
+
+# get current user ID
+my $currentUID = `/usr/bin/id -u "$ENV{USER}"`;
+if (($? >> 8) != 0) {
+	$currentUID = -1;
+}
+chomp $currentUID;
+
+# try to close any switched Xsan Admin PIDs
+my @PROCS = split(/\n/, $PROC);
+foreach (@PROCS) {
+	if (! -e $SENDER) {
+		last;
+	}
+	if ($_ =~ m/sig:.+cmd:$APP.+pid:([0-9]+).+dev:.+uid:([0-9]+)/) {
+		my $pid = $1;
+		my $processUID = $2;
+		if ($processUID != $currentUID) {
+			print "Attempting to close Xsan Admin PID $pid\n";
+			#`"$SENDER" -p $pid -e aevtquit`;
+			system("$SENDER", "-p", "$pid", "-e", "aevtquit");
+			sleep(3);	
+		}
+	}
+	else {
+		next;
+	}
+}
+
+# retrieve Xsan Admin PIDs (again), if any
+$PROC = `/usr/bin/killall -dc "$APP" 2> /dev/null`;
+if (($? >> 8) != 0) {
+	exit(0);
+}
+$APP_IS_RUNNING = 1;
+
+# abort if we are running under the command line
+if( $ENV{'COMMAND_LINE_INSTALL'} )
+{
+	exit(0);
+}
+
+while ($APP_IS_RUNNING == 1) {
+
+	# classify Xsan Admin PIDs as running under active user or switched user
+	@switchedPIDs = ();
+	@activePIDs = ();
+	my @PROCS = split(/\n/, $PROC);
+	foreach (@PROCS) {
+		if ($_ =~ m/sig:.+cmd:$APP.+pid:([0-9]+).+dev:.+uid:([0-9]+)/) {
+			my $pid = $1;
+			my $processUID = $2;
+			if ($processUID == $currentUID) {
+				push(@activePIDs, $pid);
+				$APP_RUNNING_CURRENT_USER = 1;
+			}
+			else {
+				push(@switchedPIDs, $pid);
+				$APP_RUNNING_OTHER_USER = 1;
+			}
+		}
+		else {
+			next;
+		}
+	}
+
+	# current user message has priority over other user message
+	if ($APP_RUNNING_CURRENT_USER) {
+		$ENV{'ALERT_APP_ACTION'} = "AppRunning";
+	}
+	elsif ($APP_RUNNING_OTHER_USER) {
+		$ENV{'ALERT_APP_ACTION'} = "AppRunningOtherUser";
+	}
+	else {
+		$ENV{'ALERT_APP_ACTION'} = "AppRunning";
+	}
+
+	#`/usr/bin/su $ENV{USER} -c "$ALERT"`;
+	system ("/usr/bin/su", $ENV{USER}, "-c", "\"$ALERT\"");
+	
+	# terminate if there is no SWU or Installer process for the active user
+	`/usr/bin/killall -u $ENV{USER} -s "Software Update" 2> /dev/null`;
+	if (($? >> 8) != 0) {
+		`/usr/bin/killall -u $ENV{USER} -s "Installer" 2> /dev/null`;
+		if (($? >> 8) != 0) {
+			exit(0);
+		}
+	}
+	
+	# reset for next loop iteration
+	$APP_RUNNING_CURRENT_USER = 0;
+	$APP_RUNNING_OTHER_USER = 0;
+	
+	$PROC = `/usr/bin/killall -dc "$APP" 2> /dev/null`;
+	$APP_IS_RUNNING = !($? >> 8);
+
+}
+
+exit(0);

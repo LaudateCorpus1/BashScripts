@@ -1,0 +1,48 @@
+#!/bin/sh -
+
+#
+# This script starts up Xsan after it has been installed or upgraded.
+#
+
+OSREL=`uname -r`
+
+launchctl="/usr/libexec/StartupItemContext /bin/launchctl"
+
+if [ -f /System/Library/CoreServices/ServerVersion.plist ]; then
+	Is_Server=yes
+else
+	Is_Server=no
+fi
+
+#
+# Step 1 - Start up the Serial Number daemon (if not Server; it's already
+# running on Server).
+#
+if [ ${Is_Server} != "yes" ]; then
+	if [ -e /System/Library/LaunchDaemons/com.apple.serialnumberd.plist ]; then
+		${launchctl} load -w /System/Library/LaunchDaemons/com.apple.serialnumberd.plist
+	fi
+	if [ -f /System/Library/LaunchDaemons/com.apple.SNServer.plist ]; then
+		${launchctl} load -w /System/Library/LaunchDaemons/com.apple.SNServer.plist
+	fi
+	if [ -x /System/Library/StartupItems/SerialNumberSupport/SerialNumberSupport ]; then
+		/usr/libexec/StartupItemContext /System/Library/StartupItems/SerialNumberSupport/SerialNumberSupport start
+	fi
+	/usr/bin/killall serialnumberd 2> /dev/null
+fi
+
+#
+# Step 2 - Start up the Xsan file system itself.
+#
+${launchctl} load -w /System/Library/LaunchDaemons/com.apple.xsan.plist
+
+#
+# Step 3 - Shut down and restart the Server Manager service.  We do this
+# even on OS X Server because we need to load the new Xsan plugins.
+#
+# Note: This will also cause any already-existing Xsan volumes to automount
+# (in the case of an upgrade install).
+#
+${launchctl} unload /System/Library/LaunchDaemons/com.apple.servermgrd.plist
+sleep 1
+${launchctl} load -w /System/Library/LaunchDaemons/com.apple.servermgrd.plist

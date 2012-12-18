@@ -1,0 +1,76 @@
+#!/bin/sh -
+
+# $1 = Path to package being installed
+# $2 = Destination path of where package is being installed
+# $3 = Mountpoint of the destination volume
+# $4 = Path to the directory containing the System folder that contains the
+#      active Installation framework.
+
+if [ "${3}" != "/" ]; then
+	dst_vol="${3}"
+else
+	dst_vol=""
+fi
+
+sn_src="${dst_vol}/Library/Filesystems/Xsan/config/role.plist"
+sn_dstdir="${dst_vol}/etc/systemserialnumbers"
+sn_dst="${sn_dstdir}/xsan"
+
+if [ -f "${sn_dst}" ]; then
+	echo "Xsan serial number is already in new location." >&2
+	exit 0
+fi
+
+if [ ! -f "${sn_src}" ]; then
+	echo "No previous Xsan configuration." >&2
+	exit 0
+fi
+
+cat "${sn_src}" | (
+	while read line; do
+		if [ "${line}" == "<key>license</key>" ]; then
+			read sn_line
+			sn=`echo "${sn_line}" | sed -e 's,<string>,,g' \
+						    -e 's,<.*$,,g'`
+			if ! mkdir -p "${sn_dstdir}"; then
+				echo \
+				  "Unable to create directory: ${sn_dstdir}" \
+				  >&2
+				exit 0
+			fi
+			if ! chmod 700 "${sn_dstdir}"; then
+				echo \
+				  "Unable to set permissions: ${sn_dstdir}" \
+				  >&2
+				exit 0
+			fi
+			if ! chown root:wheel "${sn_dstdir}"; then
+				echo \
+				  "Unable to change ownership: ${sn_dstdir}" \
+				  >&2
+				exit 0
+			fi
+
+			if ! echo "${sn}" > "${sn_dst}"; then
+				echo \
+				  "Unable to create file: ${sn_dst}" >&2
+				exit 0
+			fi
+			if ! chmod 700 "${sn_dst}"; then
+				echo \
+				  "Unable to set permissions: ${sn_dst}" >&2
+				exit 0
+			fi
+			if ! chown root:wheel "${sn_dst}"; then
+				echo \
+				  "Unable to change ownership: ${sn_dst}" >&2
+				exit 0
+			fi
+
+			echo "Xsan serial number successfully copied." >&2
+			exit 0
+		fi
+	done
+
+	echo "No previous Xsan serial number to extract." >&2
+)

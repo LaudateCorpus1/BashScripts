@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+
+`rm -rf "$ARGV[2]/Applications/Server/Xsan Admin.app"`;
+
+exit(0);

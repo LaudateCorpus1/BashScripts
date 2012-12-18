@@ -1,0 +1,51 @@
+README:
+
+This script only install XSan 2.2.1, it needs to be updated to support XSan 2.2.2
+
+To run the StornextinstallOSX.sh script you need to be root or run as sudo.  
+
+Before running the script you must first create your xsan.conf file. You must state the name of your XSan, metadata network, metadata controllers, SAN volume to be auto mounted and the hostname with the matching XSan serial number.  
+
+Metadata network:
+The metadata network value needs to have both the IP and subnet and has a prefext of the text "metanet:". Furthermore the subnet, should be in short form.  For example a 255.255.255.0 subnet should be a /24.
+
+Example:
+metanet: 192.168.1.0/24 
+
+Metadata controllers:
+The metadata controllers are necessary for the fsnameservers file. You should add all the IP address of every metadata controller on your SAN.  Each metadata controller should be prefixed with "mdc:"
+
+Example:
+mdc: 192.168.1.11
+mdc: 192.168.1.12
+
+SAN Name:
+This is the name of your SAN and the value is prefixed with "name:".  Moreover, there should be no spaces in the name.  Joes's XSAN will not work.
+
+Example:
+name: MY_XSan
+
+Volumes:
+As of this version only one volume can be automatically created and mounted.  If you wish to have more values auto mounted update the /Library/Filesystems/Xsan/config/automount.plist file to include extra mounts.  The volume you wish to auto mount should be prefixed with "vol:". This should also not contain any spaces in the name.
+
+Example:
+vol: edit_vol
+
+
+Hosts:
+The host section is to match XSan serial numbers with the appropriate clients. Hosts should not be in FQDN form, but rather just the hostname.  Moreover, there should be no spaces in the hostname.  Joes iMac is not a proper hostname. The host values should all be prefixed with "host:"
+
+Example:
+host: edit1 XSAN-020-000-N-1HR-PYW-TSS-4WV-8JL-4C9-E
+host: edit2 XSAN-020-001-N-2EJ-TYW-WJJ-1HR-7B4-2C7-R
+host: bob  XSAN-020-003-N-2EJ-XCV-YEB-PYW-8JL-7B4-U
+
+Umask:
+The umask section is to set the umask on the client. This setting is optional so if the value is not set the script will ignore it. Please make sure to only use umask values that are 3 or 4 digits. Any more or less and the script will reject it. The umask value should be prefixed with "umask:"
+
+Example:
+umask: 002
+
+Installing XSAN:
+
+If XSan is not installed the script will ask you if you want to install it.  By default the XSanInstall folder should have the proper XSan packages.  If not, and you want to have the script install XSan for you then you need to place the "Install Xsan.mpkg" and "XsanFilesystemUpdateSnowLeo.mpkg" (for 10.6) and/or "XsanFilesystemUpdateLeopard.mpkg" (for 10.5) in the root of the XSanINstall directory. 
